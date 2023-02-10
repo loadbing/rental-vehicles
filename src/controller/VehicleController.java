@@ -76,8 +76,8 @@ public class VehicleController {
             case "Furgoneta":
                 total = (base + 20) * tons;
                 break;
-            case "Camiones":
-                total = 40;
+            case "Camion":
+                total = (base + 40) * tons;
                 break;
         }
         return total;
