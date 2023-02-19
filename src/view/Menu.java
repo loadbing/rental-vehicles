@@ -5,7 +5,7 @@
  */
 package view;
 
-import controller.VehicleController;
+import controller.*;
 import javax.swing.table.*;
 import model.Vehicle;
 
@@ -19,7 +19,7 @@ public class Menu extends javax.swing.JFrame {
      * Creates new form Menu
      */
     DefaultTableModel dtm = new DefaultTableModel();
-    
+
     public Menu() {
         initComponents();
         String titles[] = {"Placa", "Marca", "Tipo", "PMA"};
@@ -326,16 +326,20 @@ public class Menu extends javax.swing.JFrame {
 
     private void btn_saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveActionPerformed
         Vehicle vehicle = new Vehicle();
+        String typeVal = type.getSelectedItem().toString();
+
         vehicle.setID(ID.getText());
         vehicle.setBrand(brand.getText());
-        vehicle.setType(type.getSelectedItem().toString());
+        vehicle.setType(typeVal);
         vehicle.setTons(axes.getSelectedItem().toString());
-        VehicleController vehicleController = new VehicleController(vehicle);
-        vehicleController.save(dtm);
+
+        TableController tableController = new TableController(vehicle, dtm, txtId.getText());
+
+        tableController.eject(typeVal, "save", 0, 0);
     }//GEN-LAST:event_btn_saveActionPerformed
 
     private void typeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_typeActionPerformed
-        if (type.getSelectedItem().toString().equals("Furgoneta") || type.getSelectedItem().toString().equals("Camion") ) {
+        if (type.getSelectedItem().toString().equals("Furgoneta") || type.getSelectedItem().toString().equals("Camion")) {
             axes.setEnabled(true);
         } else {
             axes.setEnabled(false);
@@ -343,15 +347,24 @@ public class Menu extends javax.swing.JFrame {
     }//GEN-LAST:event_typeActionPerformed
 
     private void btn_searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_searchActionPerformed
-        Vehicle vehicle = new Vehicle();
-        VehicleController vehicleController = new VehicleController(vehicle);
-        Vehicle result = vehicleController.searchInTable(dtm, txtId.getText());
-        lbl_id.setText(result.getID());
-        lbl_brand.setText(result.getBrand());
-        lbl_type.setText(result.getType());
-        lbl_pma.setText(result.getTons());
-        double total = vehicleController.calc(result.getType(), Integer.parseInt(txt_days.getText()), Integer.parseInt(result.getTons()));
-        lbl_total.setText(""+total);
+        try {
+            Vehicle vehicle = new Vehicle();
+            TableController tableController = new TableController(vehicle, dtm, txtId.getText());
+            Vehicle result = tableController.searchInTable();
+
+            String typeVal = result.getType();
+            String tons = result.getTons();
+
+            lbl_id.setText(result.getID());
+            lbl_brand.setText(result.getBrand());
+            lbl_type.setText(typeVal);
+            lbl_pma.setText(tons);
+
+            double total = tableController.eject(typeVal, "calc", Integer.parseInt(txt_days.getText()), Integer.parseInt(tons));
+            lbl_total.setText("" + total);
+        } catch (NumberFormatException e) {
+            System.out.println(e.getMessage());
+        }
     }//GEN-LAST:event_btn_searchActionPerformed
 
     private void txt_daysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_daysActionPerformed

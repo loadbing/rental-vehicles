@@ -5,6 +5,7 @@
  */
 package controller;
 
+import interfaces.VehicleInterface;
 import javax.swing.table.DefaultTableModel;
 import model.Vehicle;
 
@@ -12,16 +13,20 @@ import model.Vehicle;
  *
  * @author Jarias
  */
-public class VehicleController {
+public class VehicleController implements VehicleInterface {
 
     private final Vehicle vehicle;
+    public final int baseCalc;
 
     public VehicleController(Vehicle vehicle) {
         this.vehicle = vehicle;
+        this.baseCalc = 50;
     }
 
+    @Override
     public void save(DefaultTableModel dtm) {
         if (!vehicle.getID().equals("") && !vehicle.getBrand().equals("") && !vehicle.getType().equals("")) {
+            TableController tableController = new TableController(vehicle, dtm, vehicle.getID());
             String datos[] = new String[4];
 
             datos[0] = vehicle.getID();
@@ -29,57 +34,9 @@ public class VehicleController {
             datos[2] = vehicle.getType();
             datos[3] = vehicle.getTons();
 
-            if (!existsInTable(dtm, vehicle.getID())) {
+            if (!tableController.existsInTable()) {
                 dtm.addRow(datos);
             }
         }
-    }
-
-    private boolean existsInTable(DefaultTableModel table, String ID) {
-
-        int rowCount = table.getRowCount();
-
-        for (int i = 0; i < rowCount; i++) {
-            String value = table.getValueAt(i, 0).toString();
-            if (value.equals(ID)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Vehicle searchInTable(DefaultTableModel table, String ID) {
-        int rowCount = table.getRowCount();
-        Vehicle obj = new Vehicle();
-        for (int i = 0; i < rowCount; i++) {
-            String value = table.getValueAt(i, 0).toString();
-            if (value.equals(ID)) {
-                obj.setID(table.getValueAt(i, 0).toString());
-                obj.setBrand(table.getValueAt(i, 1).toString());
-                obj.setType(table.getValueAt(i, 2).toString());
-                obj.setTons(table.getValueAt(i, 3).toString());
-            }
-        }
-        return obj;
-    }
-
-    public Double calc(String type, int days, int tons) {
-        double total = 0;
-        int base = 50;
-        switch (type) {
-            case "Coche":
-                total = (base + 1.5) * days;
-                break;
-            case "Microbus":
-                total = ((base + 1.5) * days) + 2;
-                break;
-            case "Furgoneta":
-                total = (base + 20) * tons;
-                break;
-            case "Camion":
-                total = (base + 40) * tons;
-                break;
-        }
-        return total;
     }
 }
